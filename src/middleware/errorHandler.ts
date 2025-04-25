@@ -1,10 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import { isCelebrateError } from "celebrate";
+import logger from "../utils/logger";
+import { exceptionHandler } from "../utils/exception-handler";
+import { ZodError } from "zod";
+import http from "http";
 
 interface ErrorResponse {
   success: boolean;
   message: string;
-  errors?: any;
+  error: string;
 }
 
 export const errorHandler = (
@@ -15,30 +19,31 @@ export const errorHandler = (
 ) => {
   const response: ErrorResponse = {
     success: false,
-    message: "An error occurred",
+    error: "INTERNAL_SERVER_ERROR",
+    message: "An internal server error has occurred",
   };
 
   if (isCelebrateError(err)) {
-    console.log(err, "<<<<< celebrate error");
-    console.log(err.details, "<<<< celebrate error details");
-
     const validationError =
-      err.details.get("query") ||
       err.details.get("body") ||
+      err.details.get("query") ||
       err.details.get("params");
-    response.message = "Validation Error";
-    response.errors = validationError?.details.map((detail) => ({
-      field: detail.path.join("."),
-      message: detail.message,
-    }));
-    return res.status(400).json(response);
+    const message =
+      validationError?.details[0].message
+        .replace(/["]+/g, "")
+        .replace(/_/g, " ") || "Invalid field value or missing required field";
+
+    return res.status(400).json({
+      success: false,
+      error: "VALIDATION_ERROR",
+      message: message,
+    });
   }
 
   if (err instanceof Error) {
-    response.message = err.message;
+    return exceptionHandler(err, res);
   }
 
-  console.error(err);
-
+  logger.error(err);
   return res.status(500).json(response);
 };
