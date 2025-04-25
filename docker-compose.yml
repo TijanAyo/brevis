@@ -1,0 +1,39 @@
+services:
+  mongodb:
+    image: mongo
+    container_name: brevis-dev-mongo
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongo-data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    container_name: brevis-dev-ME
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_URL: mongodb://root:password@mongodb:27017
+      ME_CONFIG_BASICAUTH: false
+    depends_on:
+      - mongodb
+
+  redis:
+    image: redis
+    container_name: brevis-dev-redis
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-data:/data
+
+volumes:
+  mongo-data:
+  redis-data:

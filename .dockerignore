@@ -1,0 +1,27 @@
+
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+
+.dockerignore
+Dockerfile*
+docker-compose*
+
+
+.git
+.gitignore
+*.swp
+*.DS_Store
+
+
+.env
+.env.*   # Like .env.dev, .env.prod, etc
+
+
+dist
+build
+coverage
+.vscode
+.idea
