@@ -1,13 +1,13 @@
 import mongoose, { Int32, Schema, Types } from "mongoose";
 
-interface Ibrevis extends Document {
+interface IUrl extends Document {
   _id: Types.ObjectId;
   shortCode: string;
   originalUrl: string;
   clicks?: Int32;
 }
 
-const brevisSchema = new Schema<Ibrevis>(
+const urlSchema = new Schema<IUrl>(
   {
     shortCode: { type: String, trim: true },
     originalUrl: { type: String, trim: true },
@@ -16,5 +16,5 @@ const brevisSchema = new Schema<Ibrevis>(
   { timestamps: true }
 );
 
-const urlshortner = mongoose.model<Ibrevis>("Urlshortner", brevisSchema);
-export default urlshortner;
+const Url = mongoose.model<IUrl>("Url", urlSchema);
+export default Url;
