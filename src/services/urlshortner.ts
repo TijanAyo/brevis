@@ -1,6 +1,7 @@
 import logger from "../utils/logger";
 import Url from "../models";
 import { notFoundException, badRequestException } from "../utils/exceptions";
+import redisInstance from "../config/redis";
 
 interface ShortenUrlPayload {
   longURL: string;
@@ -16,30 +17,55 @@ interface ShortenUrlResponse {
 }
 
 class UrlShortnerService {
+  static readonly SEVEN_DAYS_CACHE_TTL_IN_SECONDS = 7 * 24 * 60 * 60;
+
   static async shortenUrl(
     payload: ShortenUrlPayload
   ): Promise<ShortenUrlResponse> {
     try {
-      const shortCode = Math.random().toString(36).substring(2, 9);
+      const existingUrl = await Url.findOne({ originalUrl: payload.longURL });
 
-      const newUrl = await Url.create({
-        shortCode,
-        originalUrl: payload.longURL,
-      });
+      if (!existingUrl) {
+        const shortCode = Math.random().toString(36).substring(2, 9);
 
-      if (!newUrl) {
-        logger.error("Shorted url was not created successfully");
-        throw new badRequestException(
-          "Failed to shorten the provided URL. Please try again."
-        );
+        const newUrl = await Url.create({
+          shortCode,
+          originalUrl: payload.longURL,
+        });
+
+        if (!newUrl) {
+          logger.error("Shorted url was not created successfully");
+          throw new badRequestException(
+            "Failed to shorten the provided URL. Please try again."
+          );
+        }
+
+        // cache new url
+        await redisInstance
+          .getClient()
+          .set(
+            `url:${shortCode}`,
+            newUrl.originalUrl,
+            "EX",
+            UrlShortnerService.SEVEN_DAYS_CACHE_TTL_IN_SECONDS
+          );
+
+        return {
+          success: true,
+          message: "URL shortened successfully",
+          data: {
+            shortCode: newUrl.shortCode,
+            originalUrl: newUrl.originalUrl,
+          },
+        };
       }
 
       return {
         success: true,
-        message: "URL shortened successfully",
+        message: "URL already shortened",
         data: {
-          shortCode: newUrl.shortCode,
-          originalUrl: newUrl.originalUrl,
+          shortCode: existingUrl.shortCode,
+          originalUrl: existingUrl.originalUrl,
         },
       };
     } catch (err: any) {
@@ -50,13 +76,32 @@ class UrlShortnerService {
 
   static async getOriginalUrl(shortCode: string): Promise<string> {
     try {
-      const url = await Url.findOne({ shortCode });
+      const cachedURL = await redisInstance.getClient().get(`url:${shortCode}`);
+      if (!cachedURL) {
+        const url = await Url.findOne({ shortCode });
 
-      if (!url) {
-        throw new notFoundException("Short code reference does not exist");
+        if (!url) {
+          throw new notFoundException(
+            "Provided shortcode reference does not exist"
+          );
+        }
+
+        await redisInstance
+          .getClient()
+          .set(
+            `url:${shortCode}`,
+            url.originalUrl,
+            "EX",
+            UrlShortnerService.SEVEN_DAYS_CACHE_TTL_IN_SECONDS
+          );
+
+        return url.originalUrl;
       }
 
-      return url.originalUrl;
+      console.log("getting here");
+      console.log(cachedURL);
+      console.log(typeof cachedURL);
+      return cachedURL;
     } catch (err: any) {
       logger.error(`Error retrieving original URL: ${err.message}`);
       throw err;

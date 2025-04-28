@@ -3,6 +3,7 @@ dotenv.config();
 import express, { Request, Response } from "express";
 import compression from "compression";
 import "./config/db";
+import "./config/redis";
 import { shortUrlRoute } from "./routes";
 import { errorHandler } from "./middleware/errorHandler";
 import logger from "./utils/logger";
