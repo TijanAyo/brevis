@@ -9,7 +9,7 @@ interface IUrl extends Document {
 
 const urlSchema = new Schema<IUrl>(
   {
-    shortCode: { type: String, trim: true },
+    shortCode: { type: String, trim: true, unique: true },
     originalUrl: { type: String, trim: true },
     clicks: { type: mongoose.Schema.Types.Int32, default: 0 },
   },

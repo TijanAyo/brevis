@@ -78,12 +78,14 @@ class UrlShortnerService {
     try {
       const cachedURL = await redisInstance.getClient().get(`url:${shortCode}`);
       if (!cachedURL) {
-        const url = await Url.findOne({ shortCode });
+        const url = await Url.findOneAndUpdate(
+          { shortCode },
+          { $inc: { clicks: 1 } },
+          { new: true }
+        );
 
         if (!url) {
-          throw new notFoundException(
-            "Provided shortcode reference does not exist"
-          );
+          throw new notFoundException("Unable to resolve provided shortcode");
         }
 
         await redisInstance
@@ -97,10 +99,8 @@ class UrlShortnerService {
 
         return url.originalUrl;
       }
+      await Url.findOneAndUpdate({ shortCode }, { $inc: { clicks: 1 } });
 
-      console.log("getting here");
-      console.log(cachedURL);
-      console.log(typeof cachedURL);
       return cachedURL;
     } catch (err: any) {
       logger.error(`Error retrieving original URL: ${err.message}`);
