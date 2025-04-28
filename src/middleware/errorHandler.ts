@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { isCelebrateError } from "celebrate";
 import logger from "../utils/logger";
 import { exceptionHandler } from "../utils/exception-handler";
-import { ZodError } from "zod";
 import http from "http";
 
 interface ErrorResponse {

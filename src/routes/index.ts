@@ -5,8 +5,6 @@ import ShortenUrl from "../controller/urlshortner";
 const route = express.Router();
 const shortenURLController = new ShortenUrl();
 
-// http://localhost:<port>/api/v1/shorten
-// http://localhost:<port>/brevis/v1/shorten
 route.post(
   "/shorten",
   celebrate({

@@ -1,5 +1,3 @@
-import http from "http";
-
 export class notFoundException extends Error {
   constructor(description: string) {
     super(description);
