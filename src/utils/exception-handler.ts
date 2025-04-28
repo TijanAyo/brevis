@@ -6,12 +6,13 @@ import {
 } from "./exceptions";
 import { Response } from "express";
 import logger from "./logger";
+import http from "http";
 
 const errorMapping = new Map([
-  [notFoundException, 404],
-  [badRequestException, 400],
-  [internalServerException, 500],
-  [validationException, 422],
+  [notFoundException, Number(http.STATUS_CODES[404])],
+  [badRequestException, Number(http.STATUS_CODES[400])],
+  [internalServerException, Number(http.STATUS_CODES[500])],
+  [validationException, Number(http.STATUS_CODES[422])],
 ]);
 
 export async function exceptionHandler(err: any, res: Response) {
