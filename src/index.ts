@@ -8,14 +8,28 @@ import { shortUrlRoute } from "./routes";
 import { errorHandler } from "./middleware/errorHandler";
 import logger from "./utils/logger";
 import requestLogger from "./middleware/requestLogger";
+import { rateLimit } from "express-rate-limit";
 
 const app = express();
 const port = Number(process.env.PORT) || 88;
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: "Too many requests, please try again later.",
+    message: "Rate limit exceeded",
+  },
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
 app.use(compression());
+app.use(limiter);
 
 app.use(["/api/v1", "/brevis/v1"], shortUrlRoute);
 
