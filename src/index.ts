@@ -4,7 +4,7 @@ import express, { Request, Response } from "express";
 import compression from "compression";
 import "./config/db";
 import "./config/redis";
-import { shortUrlRoute } from "./routes";
+import { shortUrlRoute, unshortenRoute } from "./routes";
 import { errorHandler } from "./middleware/errorHandler";
 import logger from "./utils/logger";
 import requestLogger from "./middleware/requestLogger";
@@ -33,12 +33,22 @@ app.use(limiter);
 
 app.use(["/api/v1", "/brevis/v1"], shortUrlRoute);
 
-app.get("/health", (_req: Request, res: Response) => {
+app.get("/", (_req: Request, res: Response) => {
   return res.json({
-    message: `Server up and running`,
     success: true,
+    message:
+      "Brevis URL Shortener Service -- Visit /api/v1/shorten or /brevis/v1/shorten to shorten URLs",
   });
 });
+
+app.get("/health", (_req: Request, res: Response) => {
+  return res.json({
+    success: true,
+    message: "Server up and running",
+  });
+});
+
+app.use("/", unshortenRoute);
 
 app.use(errorHandler);
 
