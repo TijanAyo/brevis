@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { isCelebrateError } from "celebrate";
 import logger from "../utils/logger";
 import { exceptionHandler } from "../utils/exception-handler";
-import http from "http";
 
 interface ErrorResponse {
   success: boolean;
@@ -32,7 +31,7 @@ export const errorHandler = (
         .replace(/["]+/g, "")
         .replace(/_/g, " ") || "Invalid field value or missing required field";
 
-    return res.status(400).json({
+    return res.status(422).json({
       success: false,
       error: "VALIDATION_ERROR",
       message: message,

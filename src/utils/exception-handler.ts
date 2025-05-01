@@ -32,6 +32,5 @@ export async function exceptionHandler(err: any, res: Response) {
     message:
       "An error occurred while processing your request. Please try again later.",
     success: false,
-    // status: http.STATUS_CODES[500],
   });
 }
