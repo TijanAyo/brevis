@@ -1,5 +1,5 @@
 import request from "supertest";
-import { app } from "../../../index";
+import app from "../../../app";
 import Url from "../../../models";
 import redisInstance from "../../../config/redis";
 import mongoose from "mongoose";
