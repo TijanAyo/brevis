@@ -12,10 +12,12 @@ import { rateLimit } from "express-rate-limit";
 
 const app = express();
 const port = Number(process.env.PORT) || 88;
+const REQUEST_LIMIT = 100;
+const COOL_DOWN_PERIOD = 15 * 60 * 1000; // 15 min
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: COOL_DOWN_PERIOD,
+  max: REQUEST_LIMIT,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -55,3 +57,5 @@ app.use(errorHandler);
 app.listen(port, () => {
   logger.info(`Server running on http://localhost:${port}`);
 });
+
+export { app };
