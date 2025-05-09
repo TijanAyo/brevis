@@ -1,6 +1,17 @@
 services:
+  app:
+    image: tijandotme/brevis:latest
+    container_name: brevis-api
+    restart: always
+    ports:
+      - 3000:3000
+    env_file:
+      - ./.env.dev
+    depends_on:
+      - mongodb
+      - redis
   mongodb:
-    image: mongo
+    image: mongo:8.0
     container_name: brevis-dev-mongo
     restart: always
     ports:
@@ -26,7 +37,7 @@ services:
       - mongodb
 
   redis:
-    image: redis
+    image: redis:8.0
     container_name: brevis-dev-redis
     restart: always
     ports:
