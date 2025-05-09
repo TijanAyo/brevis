@@ -35,7 +35,7 @@ app.use(limiter);
 app.use(["/api/v1", "/brevis/v1"], shortUrlRoute);
 
 app.get("/", (_req: Request, res: Response) => {
-  return res.json({
+  return res.status(200).json({
     success: true,
     message:
       "Brevis URL Shortener Service -- Visit /api/v1/shorten or /brevis/v1/shorten to shorten URLs",
@@ -43,7 +43,7 @@ app.get("/", (_req: Request, res: Response) => {
 });
 
 app.get("/health", (_req: Request, res: Response) => {
-  return res.json({
+  return res.status(200).json({
     success: true,
     message: "Server up and running",
   });
